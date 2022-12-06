@@ -13,10 +13,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import model.InHouse;
-import model.Inventory;
-import model.Part;
-import model.Product;
+import pourroy.c482.model.Inventory;
+import pourroy.c482.model.Part;
+import pourroy.c482.model.Product;
 
 import java.io.IOException;
 import java.net.URL;
@@ -207,14 +206,14 @@ public class HomePageController implements Initializable {
         partsTable.setItems(Inventory.getAllParts());
         partId.setCellValueFactory(new PropertyValueFactory<>("id"));
         partName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        partInventory.setCellValueFactory(new PropertyValueFactory<>("inventory"));
+        partInventory.setCellValueFactory(new PropertyValueFactory<>("stock"));
         partPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         //Initializes and populates data in the Product Table
         productsTable.setItems((Inventory.getAllProducts()));
         productId.setCellValueFactory(new PropertyValueFactory<>("id"));
         productName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        productInventory.setCellValueFactory(new PropertyValueFactory<>("inventory"));
+        productInventory.setCellValueFactory(new PropertyValueFactory<>("stock"));
         productPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
     }
 }

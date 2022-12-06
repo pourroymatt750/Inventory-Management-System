@@ -1,10 +1,10 @@
-package model;
+package pourroy.c482.model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 /**
- * Serves as a model of the Inventory which consists of Products and Parts
+ * Serves as a pourroy.c482.model of the Inventory which consists of Products and Parts
  *
  * @author Matthew Pourroy
  * */

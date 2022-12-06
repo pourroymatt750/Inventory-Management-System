@@ -1,4 +1,4 @@
-package model;
+package pourroy.c482.model;
 
 public class Outsourced extends Part {
     private String companyName;

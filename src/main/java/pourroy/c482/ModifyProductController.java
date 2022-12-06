@@ -12,8 +12,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import model.Part;
-import model.Product;
+import pourroy.c482.model.Part;
 
 import java.io.IOException;
 import java.net.URL;

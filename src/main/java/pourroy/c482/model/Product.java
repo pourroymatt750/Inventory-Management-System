@@ -1,4 +1,4 @@
-package model;
+package pourroy.c482.model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

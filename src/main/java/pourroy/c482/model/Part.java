@@ -1,4 +1,4 @@
-package model;
+package pourroy.c482.model;
 
 /**
  * Supplied class Part.java
