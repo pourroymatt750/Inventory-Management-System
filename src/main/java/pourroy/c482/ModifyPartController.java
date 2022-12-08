@@ -12,6 +12,9 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
+import pourroy.c482.model.InHouse;
+import pourroy.c482.model.Outsourced;
+import pourroy.c482.model.Part;
 
 import java.io.IOException;
 import java.net.URL;
@@ -92,6 +95,11 @@ public class ModifyPartController implements Initializable {
     @FXML
     private TextField partMinField;
 
+    /**
+     * Part that user selected to modify
+     * */
+    private Part partSelected;
+
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
         Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
@@ -103,9 +111,11 @@ public class ModifyPartController implements Initializable {
     }
 
     public void inHouseRadioButtonAction(ActionEvent actionEvent) {
+        partIdNameLabel.setText("Machine ID");
     }
 
     public void outsourcedRadioButtonAction(ActionEvent actionEvent) {
+        partIdNameLabel.setText("Company Name");
     }
 
     public void saveButtonAction(ActionEvent actionEvent) {
@@ -116,6 +126,18 @@ public class ModifyPartController implements Initializable {
      * */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("I am initialized");
+
+        if (partSelected instanceof InHouse) {
+            inHouseRadioButton.setSelected(true);
+            partIdNameLabel.setText("Machine ID");
+            partIdNameField.setText(String.valueOf(((InHouse) partSelected).getMachineId()));
+        }
+
+        partIdField.setText(String.valueOf(partSelected.getId()));
+        partNameField.setText(partSelected.getName());
+        partInventoryField.setText(String.valueOf(partSelected.getStock()));
+        partPriceField.setText(String.valueOf(partSelected.getPrice()));
+        partMaxField.setText(String.valueOf(partSelected.getMax()));
+        partMinField.setText(String.valueOf(partSelected.getMin()));
     }
 }

@@ -17,7 +17,7 @@
         <Label layoutX="97.0" layoutY="298.0" text="Inventory" />
         <Label layoutX="100.0" layoutY="342.0" text="Price" />
         <Label layoutX="102.0" layoutY="391.0" text="Max" />
-        <Label fx:id="machineId" layoutX="99.0" layoutY="438.0" text="Machine ID" />
+        <Label fx:id="partIdNameLabel" layoutX="99.0" layoutY="438.0" />
         <RadioButton fx:id="inHouseRadioButton" layoutX="232.0" layoutY="151.0" mnemonicParsing="false" onAction="#onInHouseRadioButton" text="In-House">
             <toggleGroup>
                 <ToggleGroup fx:id="togglePartType" />

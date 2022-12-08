@@ -50,6 +50,30 @@ public class Inventory {
 //    public static boolean deleteProduct(Product selectedProduct) {}
 
     /**
+     * Initializes Part ID to 3 because that's the last ID number of the preloaded data
+     * */
+    private static int partId = 3;
+
+    /**
+     * Initializes Product ID to 3 because that's the last ID number of the preloaded data
+     * */
+    private static int productId = 3;
+
+    /**
+     * Auto-generates a new part ID upon every added part
+     * */
+    public static int getNewPartId() {
+        return ++partId;
+    }
+
+    /**
+     * Auto-generates a new product ID upon every added product
+     * */
+    public static int getNewProductId() {
+        return ++productId;
+    }
+
+    /**
      * Shows a list of all the Parts in Inventory
      *
      * @return List of Parts objects

@@ -1,5 +1,7 @@
 package pourroy.c482;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -71,6 +73,7 @@ public class HomePageController implements Initializable {
      * */
 
 
+
     /**
      * BEGIN Products fields
      * */
@@ -117,8 +120,49 @@ public class HomePageController implements Initializable {
     //BEGIN Parts Controller Functions
     //Parts Search Bar controller
     public void onPartSearch(KeyEvent keyEvent) {
-        System.out.println("I am the Parts Search Field!!");
+
+        String partName = partSearchBar.getText();
+
+        ObservableList<Part> parts = searchByPartName(partName);
+
+        if (parts.size() == 0) {
+            try {
+                int id = Integer.parseInt(partName);
+                Part part = getPartById(id);
+                if (part != null)
+                    parts.add(part);
+            } catch (NumberFormatException e) {}
+
+        }
+
+        partsTable.setItems(parts);
     }
+
+    private ObservableList<Part> searchByPartName(String partialName) {
+        ObservableList<Part> matchingParts = FXCollections.observableArrayList();
+        ObservableList<Part> allParts = Inventory.getAllParts();
+
+        for (Part part : allParts) {
+            if (part.getName().contains(partialName)) {
+                matchingParts.add(part);
+            }
+        }
+        return matchingParts;
+    }
+
+    private Part getPartById(int id) {
+        ObservableList<Part> allParts = Inventory.getAllParts();
+
+        for (int i=0; i < allParts.size(); i++) {
+            Part part = allParts.get(i);
+
+            if (part.getId() == id) {
+                return part;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Takes user to the "Add Part" scene
@@ -136,8 +180,10 @@ public class HomePageController implements Initializable {
         stage.show();
     }
 
+
     //Modify Part Button
     public void onModifyPart(ActionEvent actionEvent) throws IOException {
+
 
         Parent root = FXMLLoader.load(getClass().getResource("add-part.fxml"));
         Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
@@ -156,7 +202,48 @@ public class HomePageController implements Initializable {
     //BEGIN Product Controller Functions
     //Product Search Bar
     public void onProductSearch(KeyEvent keyEvent) {
-        System.out.println("I am the Product Search Field!!");
+
+        String productName = productSearchBar.getText();
+
+        ObservableList<Product> products = searchByProductName(productName);
+
+        if (products.size() == 0) {
+            try {
+                int id = Integer.parseInt(productName);
+                Product product = getProductById(id);
+                if (product != null)
+                    products.add(product);
+            } catch (NumberFormatException e) {}
+
+        }
+
+        productsTable.setItems(products);
+    }
+
+    private ObservableList<Product> searchByProductName(String partialName) {
+        ObservableList<Product> matchingProducts = FXCollections.observableArrayList();
+        ObservableList<Product> allProducts = Inventory.getAllProducts();
+
+        for (Product product : allProducts) {
+            if (product.getName().contains(partialName)) {
+                matchingProducts.add(product);
+            }
+        }
+        return matchingProducts;
+    }
+
+    private Product getProductById(int id) {
+        ObservableList<Product> allProducts = Inventory.getAllProducts();
+
+        for (int i=0; i < allProducts.size(); i++) {
+            Product product = allProducts.get(i);
+
+            if (product.getId() == id) {
+                return product;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -174,6 +261,7 @@ public class HomePageController implements Initializable {
         stage.setScene(scene);
         stage.show();
     }
+
 
     //Modify Product Button
     public void onModifyProduct(ActionEvent actionEvent) throws IOException {
@@ -194,7 +282,7 @@ public class HomePageController implements Initializable {
 
     //Exit Button
     public void onExitButton(ActionEvent actionEvent) {
-        System.out.println("I am the Exit Button!!");
+        System.exit(0);
     }
 
     /**

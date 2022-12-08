@@ -12,10 +12,15 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
+import pourroy.c482.model.InHouse;
+import pourroy.c482.model.Inventory;
+import pourroy.c482.model.Outsourced;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import static pourroy.c482.model.Inventory.getNewPartId;
 
 /**
  * Controller for the Add Part Page that provides functionality for the application
@@ -24,10 +29,10 @@ import java.util.ResourceBundle;
  * */
 public class AddPartController implements Initializable {
     /**
-     * Machine ID
+     * Machine ID/Company Name label
      * */
     @FXML
-    private Label machineId;
+    private Label partIdNameLabel;
 
     /**
      * In-House Radio Button
@@ -98,14 +103,34 @@ public class AddPartController implements Initializable {
      * @param actionEvent Save button action
      * @throws IOException from FXMLLoader
      * */
-    public void onSaveButton(ActionEvent actionEvent) {
+    @FXML
+    void onSaveButton(ActionEvent actionEvent) throws IOException {
 
-        int id = Integer.parseInt(partIdField.getText());
+        int id = getNewPartId();
         String name = partNameField.getText();
-        int inventory = Integer.parseInt(partInventoryField.getText());
+        int stock = Integer.parseInt(partInventoryField.getText());
         double price = Double.parseDouble(partPriceField.getText());
         int max = Integer.parseInt(partMaxField.getText());
         int min = Integer.parseInt(partMinField.getText());
+
+        if (inHouseRadioButton.isSelected()) {
+            int machineId = Integer.parseInt(partIdNameField.getText());
+            Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+        }
+
+
+        if (outsourcedRadioButton.isSelected()) {
+            String companyName = partIdNameField.getText();
+            Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
+        }
+
+
+        Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root, 1000, 600);
+        stage.setTitle("Home");
+        stage.setScene(scene);
+        stage.show();
     }
 
     //Cancel Button
@@ -121,12 +146,14 @@ public class AddPartController implements Initializable {
 
     //In House Radio Button
     public void onInHouseRadioButton(ActionEvent actionEvent) {
-        System.out.println("I am the In House Button!!");
+
+        partIdNameLabel.setText("Machine ID");
     }
 
     //Outsourced Radio Button
     public void onOutsourcedRadioButton(ActionEvent actionEvent) {
-        System.out.println("I am the Outsourced Button!!");
+
+        partIdNameLabel.setText("Company Name");
     }
 
     /**
@@ -134,6 +161,8 @@ public class AddPartController implements Initializable {
      * */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("I am initialized");
+
+        partIdNameLabel.setText("Machine ID");
+        inHouseRadioButton.setSelected(true);
     }
 }
