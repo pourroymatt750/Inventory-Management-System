@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static pourroy.c482.model.Inventory.lookupPart;
+
 /**
  * Controller for the Home Page that provides functionality for the application
  *
@@ -123,12 +125,14 @@ public class HomePageController implements Initializable {
 
         String partName = partSearchBar.getText();
 
-        ObservableList<Part> parts = searchByPartName(partName);
+//        ObservableList<Part> parts = searchByPartName(partName);
+        ObservableList<Part> parts = lookupPart(partName);
 
         if (parts.size() == 0) {
             try {
-                int id = Integer.parseInt(partName);
-                Part part = getPartById(id);
+                int partId = Integer.parseInt(partName);
+                Part part = lookupPart(partId);
+//                Part part = getPartById(id);
                 if (part != null)
                     parts.add(part);
             } catch (NumberFormatException e) {}

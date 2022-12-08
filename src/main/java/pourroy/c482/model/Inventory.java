@@ -33,11 +33,32 @@ public class Inventory {
      * */
     public static void addProduct(Product newProduct) { allProducts.add(newProduct); }
 
-//    public static Part lookupPart(int partId) {}
+    public static Part lookupPart(int partId) {
+        ObservableList<Part> allParts = Inventory.getAllParts();
+
+        for (int i=0; i < allParts.size(); i++) {
+            Part part = allParts.get(i);
+
+            if (part.getId() == partId) {
+                return part;
+            }
+        }
+        return null;
+    }
 //
 //    public static Product lookupProduct(int productID) {}
 //
-//    public static ObservableList<Part> lookupPart(String partName) {}
+    public static ObservableList<Part> lookupPart(String partName) {
+        ObservableList<Part> matchingParts = FXCollections.observableArrayList();
+        ObservableList<Part> allParts = Inventory.getAllParts();
+
+        for (Part part : allParts) {
+            if (part.getName().contains(partName)) {
+                matchingParts.add(part);
+            }
+        }
+        return matchingParts;
+    }
 //
 //    public static ObservableList<Product> lookupProduct(String productName) {}
 //
