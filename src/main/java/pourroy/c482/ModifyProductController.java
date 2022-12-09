@@ -19,7 +19,6 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import static pourroy.c482.model.Inventory.getNewProductId;
 import static pourroy.c482.model.Inventory.lookupPart;
 
 /**
@@ -187,29 +186,41 @@ public class ModifyProductController implements Initializable {
 
     public void saveButtonAction(ActionEvent actionEvent) {
 
-        try {
-            int id = getNewProductId();
-            String name = productNameField.getText();
-            int stock = Integer.parseInt(productStockField.getText());
-            double price = Double.parseDouble(productPriceField.getText());
-            int max = Integer.parseInt(productMaxField.getText());
-            int min = Integer.parseInt(productMinField.getText());
+        Product selectedProduct = HomePageController.getSelectedProduct();
 
-            Product newProduct = new Product(id, name, price, stock, min, max);
-            Inventory.addProduct(newProduct);
+        for (Product product : Inventory.getAllProducts()) {
+            try {
+                int id = selectedProduct.getId();
+                String name = productNameField.getText();
+                int stock = Integer.parseInt(productStockField.getText());
+                double price = Double.parseDouble(productPriceField.getText());
+                int max = Integer.parseInt(productMaxField.getText());
+                int min = Integer.parseInt(productMinField.getText());
 
-            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1000, 600);
-            stage.setTitle("Home");
-            stage.setScene(scene);
-            stage.show();
+                selectedProduct.setName(name);
+                selectedProduct.setStock(stock);
+                selectedProduct.setPrice(price);
+                selectedProduct.setMax(max);
+                selectedProduct.setMin(min);
 
-        } catch (NumberFormatException e) {
-            System.out.println("Please enter valid values in text fields");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                Inventory.updateProduct(id, selectedProduct);
+
+                Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root, 1000, 600);
+                stage.setTitle("Home");
+                stage.setScene(scene);
+                stage.show();
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Please enter valid values in text fields");
+                alert.showAndWait();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+
     }
 
     public void removeButtonAction(ActionEvent actionEvent) {

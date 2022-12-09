@@ -111,7 +111,6 @@ public class AddPartController implements Initializable {
             double price = Double.parseDouble(partPriceField.getText());
             int max = Integer.parseInt(partMaxField.getText());
             int min = Integer.parseInt(partMinField.getText());
-            boolean partSaved = false;
 
             if (inHouseRadioButton.isSelected()) {
                 int machineId = Integer.parseInt(partIdNameField.getText());

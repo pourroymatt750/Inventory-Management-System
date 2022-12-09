@@ -69,6 +69,14 @@ public class HomePageController implements Initializable {
      * */
     @FXML
     private TableColumn<Part, Double> partPrice;
+
+    private static Part selectedPart;
+    public static void setSelectedPart(Part selected) {
+        selectedPart = selected;
+    }
+    public static Part getSelectedPart() {
+        return selectedPart;
+    }
     /**
      * END Parts fields
      * */
@@ -114,9 +122,19 @@ public class HomePageController implements Initializable {
      * */
     @FXML
     private TableColumn<Product, Double> productPrice;
+
+    private static Product selectedProduct;
+    public static void setSelectedProduct(Product selected) {
+        selectedProduct = selected;
+    }
+    public static Product getSelectedProduct() {
+        return selectedProduct;
+    }
     /**
      * END Products fields
      * */
+
+
 
     //BEGIN Parts Controller Functions
     //Parts Search Bar controller
@@ -163,22 +181,34 @@ public class HomePageController implements Initializable {
 
     //Modify Part Button
     public void onModifyPart(ActionEvent actionEvent) throws IOException {
+        Part selected = partsTable.getSelectionModel().getSelectedItem();
+        HomePageController.setSelectedPart(selected);
 
+        if (selected == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No part selected");
+            alert.showAndWait();
+        } else {
+            try {
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(getClass().getResource("modify-part.fxml"));
+                loader.load();
 
+                ModifyPartController modifyPartController = loader.getController();
+                modifyPartController.sendPart(partsTable.getSelectionModel().getSelectedItem());
 
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("modify-part.fxml"));
-        loader.load();
+                Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+                Parent root = loader.getRoot();
+                Scene scene = new Scene(root, 800, 600);
+                stage.setTitle("Modify Part");
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-        ModifyPartController modifyPartController = loader.getController();
-        modifyPartController.sendPart(partsTable.getSelectionModel().getSelectedItem());
-
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        Parent root = loader.getRoot();
-        Scene scene = new Scene(root, 800, 600);
-        stage.setTitle("Modify Part");
-        stage.setScene(scene);
-        stage.show();
     }
 
     //Delete Part Button
@@ -250,19 +280,34 @@ public class HomePageController implements Initializable {
     //Modify Product Button
     public void onModifyProduct(ActionEvent actionEvent) throws IOException {
 
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("modify-product.fxml"));
-        loader.load();
+        Product selected = productsTable.getSelectionModel().getSelectedItem();
+        HomePageController.setSelectedProduct(selected);
 
-        ModifyProductController modifyProductController = loader.getController();
-        modifyProductController.sendProduct(productsTable.getSelectionModel().getSelectedItem());
+        if (selected == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No part selected");
+            alert.showAndWait();
+        } else {
+            try {
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(getClass().getResource("modify-product.fxml"));
+                loader.load();
 
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        Parent root = loader.getRoot();
-        Scene scene = new Scene(root, 1200, 700);
-        stage.setTitle("Modify Product");
-        stage.setScene(scene);
-        stage.show();
+                ModifyProductController modifyProductController = loader.getController();
+                modifyProductController.sendProduct(productsTable.getSelectionModel().getSelectedItem());
+
+                Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+                Parent root = loader.getRoot();
+                Scene scene = new Scene(root, 800, 600);
+                stage.setTitle("Modify Product");
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     //Delete Product Button

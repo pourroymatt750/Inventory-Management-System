@@ -245,6 +245,7 @@ public class AddProductController implements Initializable {
 
     //Add a Part into inventory
     public void onAddButton(ActionEvent actionEvent) {
+        Part newPart = partsTable.getSelectionModel().getSelectedItem();
 
     }
 

@@ -75,9 +75,17 @@ public class Product {
         this.max = max;
     }
 
-    public void addAssociatedPart(Part part) {}
+    public void addAssociatedPart(Part part) {
+        associatedParts.add(part);
+    }
 
-//    public boolean deleteAssociatedPart(Part selectedAssociatedPart) {}
-//
-//    public ObservableList<Part> getAllAssociatedParts() {}
+    public boolean deleteAssociatedPart(Part selectedAssociatedPart) {
+        if (associatedParts.contains(selectedAssociatedPart)) {
+            associatedParts.remove(selectedAssociatedPart);
+            return true;
+        }
+        return false;
+    }
+
+    public ObservableList<Part> getAllAssociatedParts() { return associatedParts; }
 }

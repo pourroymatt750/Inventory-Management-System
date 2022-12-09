@@ -85,13 +85,13 @@ public class Inventory {
         return matchingProducts;
     }
 
-    public static void updatePart(int index, Part selectedPart) {
-        index = allParts.indexOf(selectedPart);
+    public static void updatePart(int id, Part selectedPart) {
+        int index = allParts.indexOf(selectedPart);
         allParts.set(index, selectedPart);
     }
 
-    public static void updateProduct(int index, Product newProduct) {
-        index = allProducts.indexOf(newProduct);
+    public static void updateProduct(int id, Product newProduct) {
+        int index = allProducts.indexOf(newProduct);
         allProducts.set(index, newProduct);
     }
 

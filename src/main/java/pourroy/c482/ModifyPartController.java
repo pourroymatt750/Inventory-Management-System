@@ -96,10 +96,6 @@ public class ModifyPartController implements Initializable {
     @FXML
     private TextField partMinField;
 
-    /**
-     * Part that user selected to modify
-     * */
-    private Part selectedPart;
 
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
@@ -126,42 +122,50 @@ public class ModifyPartController implements Initializable {
         partIdNameLabel.setText("Company Name");
     }
 
-    public void saveButtonAction(ActionEvent actionEvent) {
+    public void saveButtonAction(ActionEvent actionEvent) throws IOException {
+        Part selectedPart = HomePageController.getSelectedPart();
 
-        try {
-            int id = getNewPartId();
-            String name = partNameField.getText();
-            int stock = Integer.parseInt(partInventoryField.getText());
-            double price = Double.parseDouble(partPriceField.getText());
-            int max = Integer.parseInt(partMaxField.getText());
-            int min = Integer.parseInt(partMinField.getText());
+        for (Part part : Inventory.getAllParts()) {
+            try {
+                int id = selectedPart.getId();
+                String name = partNameField.getText();
+                int stock = Integer.parseInt(partInventoryField.getText());
+                double price = Double.parseDouble(partPriceField.getText());
+                int max = Integer.parseInt(partMaxField.getText());
+                int min = Integer.parseInt(partMinField.getText());
 
-            if (inHouseRadioButton.isSelected()) {
-                int machineId = Integer.parseInt(partIdNameField.getText());
-//                InHouse selectedPart = new InHouse(id, name, price, stock, min, max, machineId);
-//                Inventory.updatePart();
-                Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+                selectedPart.setName(name);
+                selectedPart.setStock(stock);
+                selectedPart.setPrice(price);
+                selectedPart.setMax(max);
+                selectedPart.setMin(min);
+
+                if (selectedPart instanceof InHouse) {
+                    int machineId = Integer.parseInt(partIdNameField.getText());
+                    ((InHouse) selectedPart).setMachineId(machineId);
+                }
+
+                if (selectedPart instanceof Outsourced) {
+                    String companyName = partIdNameField.getText();
+                    ((Outsourced) selectedPart).setCompanyName(companyName);
+                }
+
+                Inventory.updatePart(id, selectedPart);
+
+                Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root, 1000, 600);
+                stage.setTitle("Home");
+                stage.setScene(scene);
+                stage.show();
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Please enter valid values in text fields");
+                alert.showAndWait();
             }
-
-            if (outsourcedRadioButton.isSelected()) {
-                String companyName = partIdNameField.getText();
-                Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
-            }
-
-            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1000, 600);
-            stage.setTitle("Home");
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (NumberFormatException e) {
-            System.out.println("Please enter valid values in text fields");
-            System.out.println("Exception: " + e);
-            System.out.println("Exeption: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+
     }
 
     public void sendPart(Part part) {
