@@ -9,9 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -21,9 +19,10 @@ import pourroy.c482.model.Product;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
-import static pourroy.c482.model.Inventory.lookupPart;
+import static pourroy.c482.model.Inventory.*;
 
 /**
  * Controller for the Home Page that provides functionality for the application
@@ -125,46 +124,23 @@ public class HomePageController implements Initializable {
 
         String partName = partSearchBar.getText();
 
-//        ObservableList<Part> parts = searchByPartName(partName);
         ObservableList<Part> parts = lookupPart(partName);
 
         if (parts.size() == 0) {
             try {
                 int partId = Integer.parseInt(partName);
                 Part part = lookupPart(partId);
-//                Part part = getPartById(id);
                 if (part != null)
                     parts.add(part);
-            } catch (NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Parts Table is empty");
+                alert.showAndWait();
+            }
 
         }
-
         partsTable.setItems(parts);
-    }
-
-    private ObservableList<Part> searchByPartName(String partialName) {
-        ObservableList<Part> matchingParts = FXCollections.observableArrayList();
-        ObservableList<Part> allParts = Inventory.getAllParts();
-
-        for (Part part : allParts) {
-            if (part.getName().contains(partialName)) {
-                matchingParts.add(part);
-            }
-        }
-        return matchingParts;
-    }
-
-    private Part getPartById(int id) {
-        ObservableList<Part> allParts = Inventory.getAllParts();
-
-        for (int i=0; i < allParts.size(); i++) {
-            Part part = allParts.get(i);
-
-            if (part.getId() == id) {
-                return part;
-            }
-        }
-        return null;
     }
 
 
@@ -189,8 +165,16 @@ public class HomePageController implements Initializable {
     public void onModifyPart(ActionEvent actionEvent) throws IOException {
 
 
-        Parent root = FXMLLoader.load(getClass().getResource("add-part.fxml"));
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("modify-part.fxml"));
+        loader.load();
+
+        ModifyPartController modifyPartController = loader.getController();
+        modifyPartController.sendPart(partsTable.getSelectionModel().getSelectedItem());
+
         Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+        Parent root = loader.getRoot();
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("Modify Part");
         stage.setScene(scene);
@@ -199,7 +183,23 @@ public class HomePageController implements Initializable {
 
     //Delete Part Button
     public void onDeletePart(ActionEvent actionEvent) {
-        System.out.println("I am the Delete Part Button!!");
+        Part partSelected = partsTable.getSelectionModel().getSelectedItem();
+
+        if (partSelected != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("CONFIRMATION");
+            alert.setContentText("Do you want to delete the selected part?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                Inventory.deletePart(partSelected);
+
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No part selected");
+            Optional<ButtonType> result = alert.showAndWait();
+        }
     }
     //END Parts Controller Functions
 
@@ -209,46 +209,26 @@ public class HomePageController implements Initializable {
 
         String productName = productSearchBar.getText();
 
-        ObservableList<Product> products = searchByProductName(productName);
+        ObservableList<Product> products = lookupProduct(productName);
 
         if (products.size() == 0) {
             try {
-                int id = Integer.parseInt(productName);
-                Product product = getProductById(id);
+                int productID = Integer.parseInt(productName);
+                Product product = lookupProduct(productID);
                 if (product != null)
                     products.add(product);
-            } catch (NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Products Table is empty");
+                alert.showAndWait();
+            }
 
         }
 
         productsTable.setItems(products);
     }
 
-    private ObservableList<Product> searchByProductName(String partialName) {
-        ObservableList<Product> matchingProducts = FXCollections.observableArrayList();
-        ObservableList<Product> allProducts = Inventory.getAllProducts();
-
-        for (Product product : allProducts) {
-            if (product.getName().contains(partialName)) {
-                matchingProducts.add(product);
-            }
-        }
-        return matchingProducts;
-    }
-
-    private Product getProductById(int id) {
-        ObservableList<Product> allProducts = Inventory.getAllProducts();
-
-        for (int i=0; i < allProducts.size(); i++) {
-            Product product = allProducts.get(i);
-
-            if (product.getId() == id) {
-                return product;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Takes user to the "Add Product" scene
@@ -270,8 +250,15 @@ public class HomePageController implements Initializable {
     //Modify Product Button
     public void onModifyProduct(ActionEvent actionEvent) throws IOException {
 
-        Parent root = FXMLLoader.load(getClass().getResource("modify-product.fxml"));
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("modify-product.fxml"));
+        loader.load();
+
+        ModifyProductController modifyProductController = loader.getController();
+        modifyProductController.sendProduct(productsTable.getSelectionModel().getSelectedItem());
+
         Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+        Parent root = loader.getRoot();
         Scene scene = new Scene(root, 1200, 700);
         stage.setTitle("Modify Product");
         stage.setScene(scene);
@@ -280,7 +267,24 @@ public class HomePageController implements Initializable {
 
     //Delete Product Button
     public void onDeleteProduct(ActionEvent actionEvent) {
-        System.out.println("I am the Delete Product Button!!");
+
+        Product productSelected = productsTable.getSelectionModel().getSelectedItem();
+
+        if (productSelected != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Alert");
+            alert.setContentText("Do you want to delete the selected part?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                Inventory.deleteProduct(productSelected);
+
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No product selected");
+            Optional<ButtonType> result = alert.showAndWait();
+        }
     }
     //END Product Controller Functions
 
@@ -307,5 +311,6 @@ public class HomePageController implements Initializable {
         productName.setCellValueFactory(new PropertyValueFactory<>("name"));
         productInventory.setCellValueFactory(new PropertyValueFactory<>("stock"));
         productPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+
     }
 }

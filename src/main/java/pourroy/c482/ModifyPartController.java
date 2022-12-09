@@ -7,18 +7,19 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import pourroy.c482.model.InHouse;
+import pourroy.c482.model.Inventory;
 import pourroy.c482.model.Outsourced;
 import pourroy.c482.model.Part;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
+
+import static pourroy.c482.model.Inventory.getNewPartId;
 
 /**
  * Controller for the Modify Part Page that provides functionality for the application
@@ -98,16 +99,23 @@ public class ModifyPartController implements Initializable {
     /**
      * Part that user selected to modify
      * */
-    private Part partSelected;
+    private Part selectedPart;
 
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
-        Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, 1000, 600);
-        stage.setTitle("Home");
-        stage.setScene(scene);
-        stage.show();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("CONFIRMATION");
+        alert.setContentText("Are you sure you want to cancel? All data currently entered will be lost");
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1000, 600);
+            stage.setTitle("Home");
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
     public void inHouseRadioButtonAction(ActionEvent actionEvent) {
@@ -119,6 +127,63 @@ public class ModifyPartController implements Initializable {
     }
 
     public void saveButtonAction(ActionEvent actionEvent) {
+
+        try {
+            int id = getNewPartId();
+            String name = partNameField.getText();
+            int stock = Integer.parseInt(partInventoryField.getText());
+            double price = Double.parseDouble(partPriceField.getText());
+            int max = Integer.parseInt(partMaxField.getText());
+            int min = Integer.parseInt(partMinField.getText());
+
+            if (inHouseRadioButton.isSelected()) {
+                int machineId = Integer.parseInt(partIdNameField.getText());
+//                InHouse selectedPart = new InHouse(id, name, price, stock, min, max, machineId);
+//                Inventory.updatePart();
+                Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+            }
+
+            if (outsourcedRadioButton.isSelected()) {
+                String companyName = partIdNameField.getText();
+                Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
+            }
+
+            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1000, 600);
+            stage.setTitle("Home");
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter valid values in text fields");
+            System.out.println("Exception: " + e);
+            System.out.println("Exeption: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void sendPart(Part part) {
+
+        partIdField.setText(String.valueOf(part.getId()));
+        partNameField.setText(part.getName());
+        partInventoryField.setText(String.valueOf(part.getStock()));
+        partPriceField.setText(String.valueOf(part.getPrice()));
+        partMaxField.setText(String.valueOf(part.getMax()));
+        partMinField.setText(String.valueOf(part.getMin()));
+
+        if (part instanceof InHouse) {
+            inHouseRadioButton.setSelected(true);
+            partIdNameLabel.setText("Machine ID");
+            partIdNameField.setText(String.valueOf(((InHouse) part).getMachineId()));
+        }
+
+        if (part instanceof Outsourced) {
+            outsourcedRadioButton.setSelected(true);
+            partIdNameLabel.setText("Company Name");
+            partIdNameField.setText(String.valueOf(((Outsourced) part).getCompanyName()));
+        }
     }
 
     /**
@@ -127,17 +192,5 @@ public class ModifyPartController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        if (partSelected instanceof InHouse) {
-            inHouseRadioButton.setSelected(true);
-            partIdNameLabel.setText("Machine ID");
-            partIdNameField.setText(String.valueOf(((InHouse) partSelected).getMachineId()));
-        }
-
-        partIdField.setText(String.valueOf(partSelected.getId()));
-        partNameField.setText(partSelected.getName());
-        partInventoryField.setText(String.valueOf(partSelected.getStock()));
-        partPriceField.setText(String.valueOf(partSelected.getPrice()));
-        partMaxField.setText(String.valueOf(partSelected.getMax()));
-        partMinField.setText(String.valueOf(partSelected.getMin()));
     }
 }

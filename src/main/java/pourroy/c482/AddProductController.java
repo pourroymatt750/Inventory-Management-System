@@ -9,9 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -21,6 +19,7 @@ import pourroy.c482.model.Product;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static pourroy.c482.model.Inventory.*;
@@ -38,7 +37,7 @@ public class AddProductController implements Initializable {
     private TextField partSearchBar;
 
     /**
-     * BEGIN Associated Part Table and Components
+     * BEGINS Associated Part Table and Components
      * */
     /**
      * Associated Part Table
@@ -81,7 +80,7 @@ public class AddProductController implements Initializable {
      * Part Table
      * */
     @FXML
-    private TableView<Part> partTable;
+    private TableView<Part> partsTable;
 
     /**
      * Part ID Column
@@ -149,12 +148,19 @@ public class AddProductController implements Initializable {
     //Cancel button takes user back to home page
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
-        Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, 1000, 600);
-        stage.setTitle("Home");
-        stage.setScene(scene);
-        stage.show();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("CONFIRMATION");
+        alert.setContentText("Are you sure you want to cancel? All data currently entered will be lost");
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1000, 600);
+            stage.setTitle("Home");
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
     //Search for a Part with this controller function
@@ -162,19 +168,23 @@ public class AddProductController implements Initializable {
 
         String partName = partSearchBar.getText();
 
-        ObservableList<Part> parts = searchByPartName(partName);
+        ObservableList<Part> parts = lookupPart(partName);
 
         if (parts.size() == 0) {
             try {
-                int id = Integer.parseInt(partName);
-                Part part = getPartById(id);
+                int partId = Integer.parseInt(partName);
+                Part part = lookupPart(partId);
                 if (part != null)
                     parts.add(part);
-            } catch (NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Parts Table is empty");
+                alert.showAndWait();
+            }
 
         }
-
-        partTable.setItems(parts);
+        partsTable.setItems(parts);
     }
 
     private ObservableList<Part> searchByPartName(String partialName) {
@@ -206,24 +216,27 @@ public class AddProductController implements Initializable {
     //Save a Part in inventory
     public void onSaveButton(ActionEvent actionEvent) throws IOException {
 
-        int id = getNewProductId();
-        String name = productNameField.getText();
-        int stock = Integer.parseInt(productStockField.getText());
-        double price = Double.parseDouble(productPriceField.getText());
-        int max = Integer.parseInt(productMaxField.getText());
-        int min = Integer.parseInt(productMinField.getText());
+        try {
+            int id = getNewProductId();
+            String name = productNameField.getText();
+            int stock = Integer.parseInt(productStockField.getText());
+            double price = Double.parseDouble(productPriceField.getText());
+            int max = Integer.parseInt(productMaxField.getText());
+            int min = Integer.parseInt(productMinField.getText());
 
+            Product newProduct = new Product(id, name, price, stock, min, max);
+            Inventory.addProduct(newProduct);
 
-        Product newProduct = new Product(id, name, price, stock, min, max);
-        Inventory.addProduct(newProduct);
+            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1000, 600);
+            stage.setTitle("Home");
+            stage.setScene(scene);
+            stage.show();
 
-
-        Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, 1000, 600);
-        stage.setTitle("Home");
-        stage.setScene(scene);
-        stage.show();
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter valid values in text fields");
+        }
     }
 
     //Remove a Part from inventory
@@ -243,7 +256,7 @@ public class AddProductController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        partTable.setItems(Inventory.getAllParts());
+        partsTable.setItems(Inventory.getAllParts());
         partIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         partNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         partStockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));

@@ -7,10 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import pourroy.c482.model.InHouse;
 import pourroy.c482.model.Inventory;
@@ -18,6 +15,7 @@ import pourroy.c482.model.Outsourced;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static pourroy.c482.model.Inventory.getNewPartId;
@@ -106,42 +104,59 @@ public class AddPartController implements Initializable {
     @FXML
     void onSaveButton(ActionEvent actionEvent) throws IOException {
 
-        int id = getNewPartId();
-        String name = partNameField.getText();
-        int stock = Integer.parseInt(partInventoryField.getText());
-        double price = Double.parseDouble(partPriceField.getText());
-        int max = Integer.parseInt(partMaxField.getText());
-        int min = Integer.parseInt(partMinField.getText());
+        try {
+            int id = getNewPartId();
+            String name = partNameField.getText();
+            int stock = Integer.parseInt(partInventoryField.getText());
+            double price = Double.parseDouble(partPriceField.getText());
+            int max = Integer.parseInt(partMaxField.getText());
+            int min = Integer.parseInt(partMinField.getText());
+            boolean partSaved = false;
 
-        if (inHouseRadioButton.isSelected()) {
-            int machineId = Integer.parseInt(partIdNameField.getText());
-            Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+            if (inHouseRadioButton.isSelected()) {
+                int machineId = Integer.parseInt(partIdNameField.getText());
+                Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+            }
+
+            if (outsourcedRadioButton.isSelected()) {
+                String companyName = partIdNameField.getText();
+                Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
+            }
+
+            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1000, 600);
+            stage.setTitle("Home");
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("Please enter valid values");
+            alert.showAndWait();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-
-        if (outsourcedRadioButton.isSelected()) {
-            String companyName = partIdNameField.getText();
-            Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
-        }
-
-
-        Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, 1000, 600);
-        stage.setTitle("Home");
-        stage.setScene(scene);
-        stage.show();
     }
 
     //Cancel Button
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
-        Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root, 1000, 600);
-        stage.setTitle("Home");
-        stage.setScene(scene);
-        stage.show();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("CONFIRMATION");
+        alert.setContentText("Are you sure you want to cancel? All data currently entered will be lost");
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root, 1000, 600);
+            stage.setTitle("Home");
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
     //In House Radio Button

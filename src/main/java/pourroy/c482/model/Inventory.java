@@ -45,9 +45,8 @@ public class Inventory {
         }
         return null;
     }
-//
-//    public static Product lookupProduct(int productID) {}
-//
+
+
     public static ObservableList<Part> lookupPart(String partName) {
         ObservableList<Part> matchingParts = FXCollections.observableArrayList();
         ObservableList<Part> allParts = Inventory.getAllParts();
@@ -59,16 +58,60 @@ public class Inventory {
         }
         return matchingParts;
     }
+
+    public static Product lookupProduct(int productID) {
+        ObservableList<Product> allProducts = Inventory.getAllProducts();
+
+        for (int i=0; i < allProducts.size(); i++) {
+            Product product = allProducts.get(i);
+
+            if (product.getId() == productID) {
+                return product;
+            }
+        }
+
+        return null;
+    }
 //
-//    public static ObservableList<Product> lookupProduct(String productName) {}
-//
-//    public static void updatePart(Part selectedPart, int index) {}
-//
-//    public static void updateProduct(Product newProduct, int index) {}
-//
-//    public static boolean deletePart(Part selectedPart) {}
-//
-//    public static boolean deleteProduct(Product selectedProduct) {}
+    public static ObservableList<Product> lookupProduct(String productName) {
+        ObservableList<Product> matchingProducts = FXCollections.observableArrayList();
+        ObservableList<Product> allProducts = Inventory.getAllProducts();
+
+        for (Product product : allProducts) {
+            if (product.getName().contains(productName)) {
+                matchingProducts.add(product);
+            }
+        }
+        return matchingProducts;
+    }
+
+    public static void updatePart(int index, Part selectedPart) {
+        index = allParts.indexOf(selectedPart);
+        allParts.set(index, selectedPart);
+    }
+
+    public static void updateProduct(int index, Product newProduct) {
+        index = allProducts.indexOf(newProduct);
+        allProducts.set(index, newProduct);
+    }
+
+    public static boolean deletePart(Part selectedPart) {
+        if (allParts.contains(selectedPart)) {
+            allParts.remove(selectedPart);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean deleteProduct(Product selectedProduct) {
+        if (allProducts.contains(selectedProduct)) {
+            allProducts.remove(selectedProduct);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Initializes Part ID to 3 because that's the last ID number of the preloaded data
