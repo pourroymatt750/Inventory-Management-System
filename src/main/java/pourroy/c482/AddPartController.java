@@ -98,6 +98,9 @@ public class AddPartController implements Initializable {
     /**
      * Saves the new added part into the inventory and displays in the Home Page
      *
+     * Text fields are validated with error messages that prevent the user from entering in correct data types
+     * into text fields, checks to make sure Min is less than Max and that Stock is in between Min and Max
+     *
      * @param actionEvent Save button action
      * @throws IOException from FXMLLoader
      * */
@@ -112,35 +115,51 @@ public class AddPartController implements Initializable {
             int max = Integer.parseInt(partMaxField.getText());
             int min = Integer.parseInt(partMinField.getText());
 
-            if (inHouseRadioButton.isSelected()) {
-                int machineId = Integer.parseInt(partIdNameField.getText());
-                Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+            if (min <= max) {
+                if (stock >= min && stock <= max) {
+                    if (inHouseRadioButton.isSelected()) {
+                        int machineId = Integer.parseInt(partIdNameField.getText());
+                        Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+                    }
+
+                    if (outsourcedRadioButton.isSelected()) {
+                        String companyName = partIdNameField.getText();
+                        Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
+                    }
+
+                    Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                    Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+                    Scene scene = new Scene(root, 1000, 600);
+                    stage.setTitle("Home");
+                    stage.setScene(scene);
+                    stage.show();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("ERROR");
+                    alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
+                    alert.showAndWait();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Minimum value must be less than maximum value");
+                alert.showAndWait();
             }
-
-            if (outsourcedRadioButton.isSelected()) {
-                String companyName = partIdNameField.getText();
-                Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
-            }
-
-            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1000, 600);
-            stage.setTitle("Home");
-            stage.setScene(scene);
-            stage.show();
-
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");
             alert.setContentText("Please enter valid values");
             alert.showAndWait();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
-
     }
 
-    //Cancel Button
+   /**
+    * Shows Confirmation dialog and if user hits "OK" then it cancels any data user entered and returns to
+    * main page
+    *
+    * @param actionEvent Cancel Button
+    * @throws IOException from FXMLLoader
+    * */
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -158,20 +177,24 @@ public class AddPartController implements Initializable {
         }
     }
 
-    //In House Radio Button
-    public void onInHouseRadioButton(ActionEvent actionEvent) {
-
-        partIdNameLabel.setText("Machine ID");
-    }
-
-    //Outsourced Radio Button
-    public void onOutsourcedRadioButton(ActionEvent actionEvent) {
-
-        partIdNameLabel.setText("Company Name");
-    }
+    /**
+     * Sets the Machine ID/Company name label to "Machine ID"
+     *
+     * @param actionEvent In-House radio button
+     * */
+    public void onInHouseRadioButton(ActionEvent actionEvent) { partIdNameLabel.setText("Machine ID"); }
 
     /**
-     * Initializes the controller function and populates the Table View
+     * Sets the Machine ID/Company name label to "Company Name"
+     * */
+    public void onOutsourcedRadioButton(ActionEvent actionEvent) { partIdNameLabel.setText("Company Name"); }
+
+    /**
+     * Initializes the controller function and populates the Table View, sets the default radio button
+     * to "Machine ID"/In-House radio button
+     *
+     * @param url is the URL used to resolve relative paths for the root object, or null if the location is not known.
+     * @param resourceBundle is the ResourceBundle used to localize the root object, or null if the root object was not localized.
      * */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

@@ -145,7 +145,17 @@ public class AddProductController implements Initializable {
     @FXML
     private TextField productMinField;
 
-    //Cancel button takes user back to home page
+    /**
+     * List of Associated Parts that are linked to the product the user is adding
+     * */
+    private ObservableList<Part> assocParts = FXCollections.observableArrayList();
+
+    /**
+     * Shows Confirmation Dialog and Cancel button takes user back to home page
+     *
+     * @param actionEvent Cancel button
+     * @throws IOException from FXMLLoader
+     * */
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -163,6 +173,13 @@ public class AddProductController implements Initializable {
         }
     }
 
+    /**
+     * Searches for a Part based on the Part ID or Part name
+     *
+     * Populates a list of parts that match what is typed into Search Bar once user hits "ENTER"
+     *
+     * @param keyEvent Part SearchBar
+     * */
     //Search for a Part with this controller function
     public void onPartSearch(KeyEvent keyEvent) {
 
@@ -182,37 +199,19 @@ public class AddProductController implements Initializable {
                 alert.setContentText("Parts Table is empty");
                 alert.showAndWait();
             }
-
         }
         partsTable.setItems(parts);
     }
 
-    private ObservableList<Part> searchByPartName(String partialName) {
-        ObservableList<Part> matchingParts = FXCollections.observableArrayList();
-        ObservableList<Part> allParts = Inventory.getAllParts();
-
-        for (Part part : allParts) {
-            if (part.getName().contains(partialName)) {
-                matchingParts.add(part);
-            }
-        }
-        return matchingParts;
-    }
-
-    private Part getPartById(int id) {
-        ObservableList<Part> allParts = Inventory.getAllParts();
-
-        for (int i=0; i < allParts.size(); i++) {
-            Part part = allParts.get(i);
-
-            if (part.getId() == id) {
-                return part;
-            }
-        }
-
-        return null;
-    }
-
+    /**
+     * Adds new Product into inventory and takes user back to Home Page
+     *
+     * Text fields are validated with error messages that prevent the user from entering in correct data types
+     * into text fields, checks to make sure Min is less than Max and that Stock is in between Min and Max
+     *
+     * @param actionEvent Save button action
+     * @throws IOException from FXMLLoader
+     * */
     //Save a Part in inventory
     public void onSaveButton(ActionEvent actionEvent) throws IOException {
 
@@ -224,35 +223,92 @@ public class AddProductController implements Initializable {
             int max = Integer.parseInt(productMaxField.getText());
             int min = Integer.parseInt(productMinField.getText());
 
-            Product newProduct = new Product(id, name, price, stock, min, max);
-            Inventory.addProduct(newProduct);
+            if (min <= max) {
+                if (stock >= min && stock <= max) {
+                    Product newProduct = new Product(id, name, price, stock, min, max);
 
-            Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-            Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root, 1000, 600);
-            stage.setTitle("Home");
-            stage.setScene(scene);
-            stage.show();
+                    newProduct.setId(Inventory.getNewProductId());
+                    Inventory.addProduct(newProduct);
 
+                    Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                    Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+                    Scene scene = new Scene(root, 1000, 600);
+                    stage.setTitle("Home");
+                    stage.setScene(scene);
+                    stage.show();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("ERROR");
+                    alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
+                    alert.showAndWait();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Minimum value must be less than maximum value");
+                alert.showAndWait();
+            }
         } catch (NumberFormatException e) {
-            System.out.println("Please enter valid values in text fields");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("Please enter valid values");
+            alert.showAndWait();
         }
     }
 
-    //Remove a Part from inventory
+    /**
+     * Displays Confirmation Dialog asking user if user wants to remove Associated part from the Product the user
+     * is adding
+     *
+     * Displays error message if no Associated Part is selected
+     *
+     * @param actionEvent Remove button
+     * */
     public void onRemoveButton(ActionEvent actionEvent) {
+
+        Part selectedPart = partsTable.getSelectionModel().getSelectedItem();
+
+        if (selectedPart == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No part selected");
+            alert.showAndWait();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("CONFIRMATION");
+            alert.setContentText("Are you sure you want to remove associated part?");
+           Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                assocParts.remove(selectedPart);
+                assocPartTable.setItems(assocParts);
+            }
+        }
     }
 
-    //Add a Part into inventory
+    /**
+     * Adds an Associated Part to the Associated Parts Table
+     *
+     * Displays error message if no Associated Part is selected
+     * @param actionEvent Add button
+     * */
     public void onAddButton(ActionEvent actionEvent) {
-        Part newPart = partsTable.getSelectionModel().getSelectedItem();
 
+        Part selectedPart = partsTable.getSelectionModel().getSelectedItem();
+
+        if (selectedPart != null) {
+            assocParts.add(selectedPart);
+            assocPartTable.setItems(assocParts);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No part selected");
+            alert.showAndWait();
+        }
     }
 
     /**
      * Initializes the controller function and populates the Table View
-     *
-     *
      * */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -266,6 +322,6 @@ public class AddProductController implements Initializable {
         assocPartIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         assocPartNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         assocPartStockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
-        assocPartPriceCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        assocPartPriceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
     }
 }

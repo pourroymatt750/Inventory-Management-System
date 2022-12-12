@@ -1,7 +1,7 @@
 package pourroy.c482.model;
 
 /**
- * Serves as a pourroy.c482.model of the In-House Parts in the Inventory
+ * Serves as a Model of the In-House Parts in the Inventory
  *
  * @author Matthew Pourroy
  * */

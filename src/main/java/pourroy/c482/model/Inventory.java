@@ -4,7 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 /**
- * Serves as a pourroy.c482.model of the Inventory which consists of Products and Parts
+ * Serves as a Model of the Inventory which consists of Products and Parts
  *
  * @author Matthew Pourroy
  * */
@@ -33,6 +33,12 @@ public class Inventory {
      * */
     public static void addProduct(Product newProduct) { allProducts.add(newProduct); }
 
+    /**
+     * Searches list of parts in Parts Table by ID
+     *
+     * @param partId is the Part ID
+     * @return Part object if found in list, null otherwise
+     * */
     public static Part lookupPart(int partId) {
         ObservableList<Part> allParts = Inventory.getAllParts();
 
@@ -46,7 +52,12 @@ public class Inventory {
         return null;
     }
 
-
+    /**
+     * Searches list of parts in Parts Table by Name
+     *
+     * @param partName is the Part Name
+     * @return Part object if found in list, null otherwise
+     * */
     public static ObservableList<Part> lookupPart(String partName) {
         ObservableList<Part> matchingParts = FXCollections.observableArrayList();
         ObservableList<Part> allParts = Inventory.getAllParts();
@@ -59,6 +70,12 @@ public class Inventory {
         return matchingParts;
     }
 
+    /**
+     * Searches list of products in Products Table by ID
+     *
+     * @param productID is the Product ID
+     * @return Product object if found in list, null otherwise
+     * */
     public static Product lookupProduct(int productID) {
         ObservableList<Product> allProducts = Inventory.getAllProducts();
 
@@ -69,10 +86,15 @@ public class Inventory {
                 return product;
             }
         }
-
         return null;
     }
-//
+
+    /**
+     * Searches list of products in Products Table by Name
+     *
+     * @param productName is the Product Name
+     * @return Product object if found in list, null otherwise
+     * */
     public static ObservableList<Product> lookupProduct(String productName) {
         ObservableList<Product> matchingProducts = FXCollections.observableArrayList();
         ObservableList<Product> allProducts = Inventory.getAllProducts();
@@ -85,16 +107,32 @@ public class Inventory {
         return matchingProducts;
     }
 
-    public static void updatePart(int id, Part selectedPart) {
-        int index = allParts.indexOf(selectedPart);
+    /**
+     * Updates a part
+     *
+     * @param id is the Product ID
+     * @param selectedPart is the part selected by the user
+     * */
+    public static void updatePart(int index, Part selectedPart) {
         allParts.set(index, selectedPart);
     }
 
+    /**
+     * Updates a product
+     *
+     * @param id is the Product ID
+     * @param newProduct is the product selected by the user
+     * */
     public static void updateProduct(int id, Product newProduct) {
         int index = allProducts.indexOf(newProduct);
         allProducts.set(index, newProduct);
     }
 
+    /**
+     * Deletes a part
+     *
+     * @param selectedPart is the part selected by the user
+     * */
     public static boolean deletePart(Part selectedPart) {
         if (allParts.contains(selectedPart)) {
             allParts.remove(selectedPart);
@@ -104,6 +142,11 @@ public class Inventory {
         }
     }
 
+    /**
+     * Deletes a product
+     *
+     * @param selectedProduct is the product selected by the user
+     * */
     public static boolean deleteProduct(Product selectedProduct) {
         if (allProducts.contains(selectedProduct)) {
             allProducts.remove(selectedProduct);
@@ -125,6 +168,8 @@ public class Inventory {
 
     /**
      * Auto-generates a new part ID upon every added part
+     *
+     * @return a new part ID
      * */
     public static int getNewPartId() {
         return ++partId;
@@ -132,6 +177,8 @@ public class Inventory {
 
     /**
      * Auto-generates a new product ID upon every added product
+     *
+     * @return a new product ID
      * */
     public static int getNewProductId() {
         return ++productId;

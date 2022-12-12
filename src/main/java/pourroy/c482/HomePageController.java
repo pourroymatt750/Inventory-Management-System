@@ -1,6 +1,5 @@
 package pourroy.c482;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -70,10 +69,25 @@ public class HomePageController implements Initializable {
     @FXML
     private TableColumn<Part, Double> partPrice;
 
+    /**
+     * Selected Part that user selects
+     * */
     private static Part selectedPart;
+
+    /**
+     * Sets the part that the user clicks on as the Selected Part
+     *
+     * @param selected Selected Part
+     * */
     public static void setSelectedPart(Part selected) {
         selectedPart = selected;
     }
+
+    /**
+     * Gets the part that the user clicks on as the Selected Part
+     *
+     * @return selectedPart
+     * */
     public static Part getSelectedPart() {
         return selectedPart;
     }
@@ -123,10 +137,25 @@ public class HomePageController implements Initializable {
     @FXML
     private TableColumn<Product, Double> productPrice;
 
+    /**
+     * Selected Product that user selects
+     * */
     private static Product selectedProduct;
+
+    /**
+     * Sets the part that the user clicks on as the Selected Part
+     *
+     * @param selected Selected Part
+     * */
     public static void setSelectedProduct(Product selected) {
         selectedProduct = selected;
     }
+
+    /**
+     * Gets the part that the user clicks on as the Selected Part
+     *
+     * @return selectedProduct Selected Product
+     * */
     public static Product getSelectedProduct() {
         return selectedProduct;
     }
@@ -135,9 +164,13 @@ public class HomePageController implements Initializable {
      * */
 
 
-
-    //BEGIN Parts Controller Functions
-    //Parts Search Bar controller
+    /**
+     * Parts Search Bar controller
+     *
+     * Can search for Parts based on ID or Name
+     *
+     * @param keyEvent Part search button
+     * */
     public void onPartSearch(KeyEvent keyEvent) {
 
         String partName = partSearchBar.getText();
@@ -156,11 +189,9 @@ public class HomePageController implements Initializable {
                 alert.setContentText("Parts Table is empty");
                 alert.showAndWait();
             }
-
         }
         partsTable.setItems(parts);
     }
-
 
     /**
      * Takes user to the "Add Part" scene
@@ -178,8 +209,13 @@ public class HomePageController implements Initializable {
         stage.show();
     }
 
-
-    //Modify Part Button
+    /**
+     * Allows user to modify a Part
+     * Displays an error message if no Part is selected
+     *
+     * @param actionEvent Part modify button
+     * @throws IOException from FXMLLoader
+     * */
     public void onModifyPart(ActionEvent actionEvent) throws IOException {
         Part selected = partsTable.getSelectionModel().getSelectedItem();
         HomePageController.setSelectedPart(selected);
@@ -196,7 +232,7 @@ public class HomePageController implements Initializable {
                 loader.load();
 
                 ModifyPartController modifyPartController = loader.getController();
-                modifyPartController.sendPart(partsTable.getSelectionModel().getSelectedItem());
+                modifyPartController.sendPart(partsTable.getSelectionModel().getSelectedItem(), partsTable.getSelectionModel().getSelectedIndex());
 
                 Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
                 Parent root = loader.getRoot();
@@ -208,10 +244,15 @@ public class HomePageController implements Initializable {
                 e.printStackTrace();
             }
         }
-
     }
 
-    //Delete Part Button
+    /**
+     * Deletes the part the user selected in the Part Table
+     *
+     * Displays error message if no Part is selected
+     *
+     * @param actionEvent Part delete button
+     * */
     public void onDeletePart(ActionEvent actionEvent) {
         Part partSelected = partsTable.getSelectionModel().getSelectedItem();
 
@@ -231,10 +272,22 @@ public class HomePageController implements Initializable {
             Optional<ButtonType> result = alert.showAndWait();
         }
     }
-    //END Parts Controller Functions
+    /***
+     * END Parts Controller Functions
+     */
 
-    //BEGIN Product Controller Functions
-    //Product Search Bar
+
+
+    /**
+     * BEGIN Product Controller Functions
+     */
+    /**
+     * Parts Search Bar controller
+     *
+     * Can search for Parts based on ID or Name
+     *
+     * @param keyEvent Part search button
+     * */
     public void onProductSearch(KeyEvent keyEvent) {
 
         String productName = productSearchBar.getText();
@@ -253,12 +306,9 @@ public class HomePageController implements Initializable {
                 alert.setContentText("Products Table is empty");
                 alert.showAndWait();
             }
-
         }
-
         productsTable.setItems(products);
     }
-
 
     /**
      * Takes user to the "Add Product" scene
@@ -276,8 +326,13 @@ public class HomePageController implements Initializable {
         stage.show();
     }
 
-
-    //Modify Product Button
+    /**
+     * Allows user to modify a Product
+     * Displays an error message if no Product is selected
+     *
+     * @param actionEvent Produt modify button
+     * @throws IOException from FXMLLoader
+     * */
     public void onModifyProduct(ActionEvent actionEvent) throws IOException {
 
         Product selected = productsTable.getSelectionModel().getSelectedItem();
@@ -299,7 +354,7 @@ public class HomePageController implements Initializable {
 
                 Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
                 Parent root = loader.getRoot();
-                Scene scene = new Scene(root, 800, 600);
+                Scene scene = new Scene(root, 1000, 600);
                 stage.setTitle("Modify Product");
                 stage.setScene(scene);
                 stage.show();
@@ -307,23 +362,37 @@ public class HomePageController implements Initializable {
                 e.printStackTrace();
             }
         }
-
     }
 
-    //Delete Product Button
+    /**
+     * Displays error message if no product is selected
+     *
+     * Checks to see if Product contains any Associated Parts. If it does, error message displays saying
+     * Products with Associated Parts can NOT be deleted without deleting Associated Parts FIRST. If it
+     * doesn't, it deletes the Product out of inventory
+     *
+     * @param actionEvent Delete button
+     * */
     public void onDeleteProduct(ActionEvent actionEvent) {
 
         Product productSelected = productsTable.getSelectionModel().getSelectedItem();
 
         if (productSelected != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Alert");
-            alert.setContentText("Do you want to delete the selected part?");
-            Optional<ButtonType> result = alert.showAndWait();
+            if (productSelected.getAllAssociatedParts().isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Alert");
+                alert.setContentText("Do you want to delete the selected product?");
+                Optional<ButtonType> result = alert.showAndWait();
 
-            if (result.isPresent() && result.get() == ButtonType.OK)
-                Inventory.deleteProduct(productSelected);
-
+                if (result.isPresent() && result.get() == ButtonType.OK)
+                    Inventory.deleteProduct(productSelected);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("No product with any associated parts may be deleted. " +
+                        "Please delete associated parts first if product must be deleted");
+                Optional<ButtonType> result = alert.showAndWait();
+            }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");
@@ -331,12 +400,17 @@ public class HomePageController implements Initializable {
             Optional<ButtonType> result = alert.showAndWait();
         }
     }
-    //END Product Controller Functions
+    /**
+     * END Product Controller Functions
+     * */
 
-    //Exit Button
-    public void onExitButton(ActionEvent actionEvent) {
-        System.exit(0);
-    }
+
+    /**
+     * Exits the application
+     *
+     * @param actionEvent Exit button
+     * */
+    public void onExitButton(ActionEvent actionEvent) { System.exit(0); }
 
     /**
      * Initializes the controller function and populates the Table View

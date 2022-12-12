@@ -9,17 +9,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import pourroy.c482.model.InHouse;
-import pourroy.c482.model.Inventory;
-import pourroy.c482.model.Outsourced;
-import pourroy.c482.model.Part;
+import pourroy.c482.model.*;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import static pourroy.c482.model.Inventory.getNewPartId;
 
 /**
  * Controller for the Modify Part Page that provides functionality for the application
@@ -27,8 +23,24 @@ import static pourroy.c482.model.Inventory.getNewPartId;
  * @author Matthew Pourroy
  * */
 public class ModifyPartController implements Initializable {
+
     /**
-     * Label for Machine ID/company in the Parts Table View
+     * Sets primaryStage as the stage object
+     * */
+    private Stage primaryStage;
+
+    /**
+     * Sets scene as the scene object
+     * */
+    private Parent scene;
+
+    /**
+     * Part user selected
+     * */
+    Part part;
+
+    /**
+     * Label for Machine ID/Company Name in the Parts Table View
      * */
     @FXML
     private Label partIdNameLabel;
@@ -68,7 +80,7 @@ public class ModifyPartController implements Initializable {
      * Part Inventory Level text field
      * */
     @FXML
-    private TextField partInventoryField;
+    private TextField partStockField;
 
     /**
      * Part Price text field
@@ -95,8 +107,15 @@ public class ModifyPartController implements Initializable {
      * */
     @FXML
     private TextField partMinField;
+    private int index;
 
-
+    /**
+     * Displays Confirmation Dialog asking user to confirm cancelling, then sends user back to
+     * home page
+     *
+     * @param actionEvent Cancel button
+     * @throws IOException from FXMLLoader
+     * */
     public void onCancelButton(ActionEvent actionEvent) throws IOException {
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -114,65 +133,88 @@ public class ModifyPartController implements Initializable {
         }
     }
 
-    public void inHouseRadioButtonAction(ActionEvent actionEvent) {
-        partIdNameLabel.setText("Machine ID");
-    }
+    /**
+     * Sets the Machine ID/Company Name label to "Machine ID"
+     *
+     * @param actionEvent In-House radio button
+     * */
+    public void inHouseRadioButtonAction(ActionEvent actionEvent) { partIdNameLabel.setText("Machine ID"); }
 
-    public void outsourcedRadioButtonAction(ActionEvent actionEvent) {
-        partIdNameLabel.setText("Company Name");
-    }
+    /**
+     * Sets the Machine ID/Company Name label to "Company Name"
+     *
+     * @param actionEvent Outsourced radio button
+     * */
+    public void outsourcedRadioButtonAction(ActionEvent actionEvent) { partIdNameLabel.setText("Company Name"); }
 
+    /**
+     * Updates Part in inventory and sends user back to the Home Page
+     *
+     * Inputs validated to make sure right data type is entered
+     *
+     * Checks to make sure Min is less than Max, and that Stock is in between Min and Max
+     * */
     public void saveButtonAction(ActionEvent actionEvent) throws IOException {
-        Part selectedPart = HomePageController.getSelectedPart();
 
-        for (Part part : Inventory.getAllParts()) {
-            try {
-                int id = selectedPart.getId();
-                String name = partNameField.getText();
-                int stock = Integer.parseInt(partInventoryField.getText());
-                double price = Double.parseDouble(partPriceField.getText());
-                int max = Integer.parseInt(partMaxField.getText());
-                int min = Integer.parseInt(partMinField.getText());
+        try {
+            int id = part.getId();
+            String name = partNameField.getText();
+            int stock = Integer.parseInt(partStockField.getText());
+            double price = Double.parseDouble(partPriceField.getText());
+            int max = Integer.parseInt(partMaxField.getText());
+            int min = Integer.parseInt(partMinField.getText());
 
-                selectedPart.setName(name);
-                selectedPart.setStock(stock);
-                selectedPart.setPrice(price);
-                selectedPart.setMax(max);
-                selectedPart.setMin(min);
-
-                if (selectedPart instanceof InHouse) {
-                    int machineId = Integer.parseInt(partIdNameField.getText());
-                    ((InHouse) selectedPart).setMachineId(machineId);
-                }
-
-                if (selectedPart instanceof Outsourced) {
-                    String companyName = partIdNameField.getText();
-                    ((Outsourced) selectedPart).setCompanyName(companyName);
-                }
-
-                Inventory.updatePart(id, selectedPart);
-
-                Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-                Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-                Scene scene = new Scene(root, 1000, 600);
-                stage.setTitle("Home");
-                stage.setScene(scene);
-                stage.show();
-            } catch (NumberFormatException e) {
+            if (min > max) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("ERROR");
-                alert.setContentText("Please enter valid values in text fields");
+                alert.setContentText("Minimum value must be less than maximum value");
                 alert.showAndWait();
-            }
-        }
+            } else if (stock < min || stock > max) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
+                alert.showAndWait();
+            } else {
+                if (inHouseRadioButton.isSelected()) {
+                    int machineId = Integer.parseInt(partIdNameField.getText());
+                    InHouse inHouse = new InHouse(id, name, price, stock, min, max, machineId);
+                    Inventory.updatePart(index, inHouse);
+                }
 
+                if (outsourcedRadioButton.isSelected()) {
+                    String companyName = partIdNameField.getText();
+                    Outsourced outsourced = new Outsourced(id, name, price, stock, min, max, companyName);
+                    Inventory.updatePart(index, outsourced);
+                }
+
+                primaryStage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+                scene = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                primaryStage.setTitle("Home");
+                primaryStage.setScene(new Scene(scene));
+                primaryStage.show();
+            }
+
+
+
+
+        } catch (NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("Please enter valid values in text fields");
+            alert.showAndWait();
+        }
     }
 
-    public void sendPart(Part part) {
-
+    /**
+     * Sends data from the Save button to the Home Page
+     *
+     * */
+    public void sendPart(Part part, int index) {
+        this.index = index;
+        this.part = part;
         partIdField.setText(String.valueOf(part.getId()));
         partNameField.setText(part.getName());
-        partInventoryField.setText(String.valueOf(part.getStock()));
+        partStockField.setText(String.valueOf(part.getStock()));
         partPriceField.setText(String.valueOf(part.getPrice()));
         partMaxField.setText(String.valueOf(part.getMax()));
         partMinField.setText(String.valueOf(part.getMin()));
@@ -194,7 +236,5 @@ public class ModifyPartController implements Initializable {
      * Initializes the controller function and populates the Table View
      * */
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-
-    }
+    public void initialize(URL url, ResourceBundle resourceBundle) { }
 }

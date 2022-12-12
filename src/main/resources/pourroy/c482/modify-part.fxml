@@ -25,7 +25,7 @@
         <RadioButton fx:id="outsourcedRadioButton" layoutX="375.0" layoutY="151.0" mnemonicParsing="false" onAction="#outsourcedRadioButtonAction" text="Outsourced" toggleGroup="$togglePartType" />
         <TextField fx:id="partIdField" editable="false" layoutX="214.0" layoutY="202.0" />
         <TextField fx:id="partNameField" layoutX="214.0" layoutY="249.0" />
-        <TextField fx:id="partInventoryField" layoutX="214.0" layoutY="293.0" />
+        <TextField fx:id="partStockField" layoutX="214.0" layoutY="293.0" />
         <TextField fx:id="partPriceField" layoutX="214.0" layoutY="337.0" />
         <TextField fx:id="partMaxField" layoutX="214.0" layoutY="386.0" />
         <TextField fx:id="partIdNameField" layoutX="213.0" layoutY="433.0" />
