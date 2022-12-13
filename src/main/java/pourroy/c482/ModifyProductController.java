@@ -232,33 +232,28 @@ public class ModifyProductController implements Initializable {
             int max = Integer.parseInt(productMaxField.getText());
             int min = Integer.parseInt(productMinField.getText());
 
-            if (min <= max) {
-                if (stock >= min && stock <= max) {
-                    product.setName(name);
-                    product.setStock(stock);
-                    product.setPrice(price);
-                    product.setMax(max);
-                    product.setMin(min);
-
-//                    product.getAllAssociatedParts().addAll(assocParts);
-
-                    primaryStage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
-                    scene = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-                    primaryStage.setTitle("Home");
-                    primaryStage.setScene(new Scene(scene));
-                    primaryStage.show();
-
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("ERROR");
-                    alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
-                    alert.showAndWait();
-                }
-            } else {
+            if (min > max) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("ERROR");
                 alert.setContentText("Minimum value must be less than maximum value");
                 alert.showAndWait();
+            } else if (stock < min || stock > max) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
+                alert.showAndWait();
+            } else {
+                product.setName(name);
+                product.setStock(stock);
+                product.setPrice(price);
+                product.setMax(max);
+                product.setMin(min);
+
+                primaryStage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+                scene = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                primaryStage.setTitle("Home");
+                primaryStage.setScene(new Scene(scene));
+                primaryStage.show();
             }
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -292,8 +287,6 @@ public class ModifyProductController implements Initializable {
             Optional<ButtonType> result = alert.showAndWait();
 
             if (result.isPresent() && result.get() == ButtonType.OK) {
-//                assocParts.remove(selectedPart);
-//                assocPartTable.setItems(assocParts);
                 assocPartTable.getItems().remove(selectedPart);
             }
         }
@@ -309,15 +302,13 @@ public class ModifyProductController implements Initializable {
 
         Part selectedPart = partsTable.getSelectionModel().getSelectedItem();
 
-        if (selectedPart != null) {
-//            assocParts.add(selectedPart);
-//            assocPartTable.setItems(assocParts);
-            assocPartTable.getItems().add(selectedPart);
-        } else {
+        if (selectedPart == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");
             alert.setContentText("No part selected");
             alert.showAndWait();
+        } else {
+            assocPartTable.getItems().add(selectedPart);
         }
     }
 

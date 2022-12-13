@@ -223,30 +223,28 @@ public class AddProductController implements Initializable {
             int max = Integer.parseInt(productMaxField.getText());
             int min = Integer.parseInt(productMinField.getText());
 
-            if (min <= max) {
-                if (stock >= min && stock <= max) {
-                    Product newProduct = new Product(id, name, price, stock, min, max);
-
-                    newProduct.setId(Inventory.getNewProductId());
-                    Inventory.addProduct(newProduct);
-
-                    Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-                    Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-                    Scene scene = new Scene(root, 1000, 600);
-                    stage.setTitle("Home");
-                    stage.setScene(scene);
-                    stage.show();
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("ERROR");
-                    alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
-                    alert.showAndWait();
-                }
-            } else {
+            if (min > max) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("ERROR");
                 alert.setContentText("Minimum value must be less than maximum value");
                 alert.showAndWait();
+            } else if (stock < min || stock > max) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
+                alert.showAndWait();
+            } else {
+                Product newProduct = new Product(id, name, price, stock, min, max);
+
+                newProduct.setId(Inventory.getNewProductId());
+                Inventory.addProduct(newProduct);
+
+                Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root, 1000, 600);
+                stage.setTitle("Home");
+                stage.setScene(scene);
+                stage.show();
             }
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -277,7 +275,7 @@ public class AddProductController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("CONFIRMATION");
             alert.setContentText("Are you sure you want to remove associated part?");
-           Optional<ButtonType> result = alert.showAndWait();
+            Optional<ButtonType> result = alert.showAndWait();
 
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 assocParts.remove(selectedPart);
@@ -296,14 +294,14 @@ public class AddProductController implements Initializable {
 
         Part selectedPart = partsTable.getSelectionModel().getSelectedItem();
 
-        if (selectedPart != null) {
-            assocParts.add(selectedPart);
-            assocPartTable.setItems(assocParts);
-        } else {
+        if (selectedPart == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");
             alert.setContentText("No part selected");
             alert.showAndWait();
+        } else {
+            assocParts.add(selectedPart);
+            assocPartTable.setItems(assocParts);
         }
     }
 

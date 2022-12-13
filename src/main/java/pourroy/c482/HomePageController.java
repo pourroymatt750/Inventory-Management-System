@@ -256,7 +256,12 @@ public class HomePageController implements Initializable {
     public void onDeletePart(ActionEvent actionEvent) {
         Part partSelected = partsTable.getSelectionModel().getSelectedItem();
 
-        if (partSelected != null) {
+        if (partSelected == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No part selected");
+            Optional<ButtonType> result = alert.showAndWait();
+        } else {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("CONFIRMATION");
             alert.setContentText("Do you want to delete the selected part?");
@@ -264,12 +269,6 @@ public class HomePageController implements Initializable {
 
             if (result.isPresent() && result.get() == ButtonType.OK)
                 Inventory.deletePart(partSelected);
-
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("ERROR");
-            alert.setContentText("No part selected");
-            Optional<ButtonType> result = alert.showAndWait();
         }
     }
     /***
@@ -377,26 +376,24 @@ public class HomePageController implements Initializable {
 
         Product productSelected = productsTable.getSelectionModel().getSelectedItem();
 
-        if (productSelected != null) {
-            if (productSelected.getAllAssociatedParts().isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Alert");
-                alert.setContentText("Do you want to delete the selected product?");
-                Optional<ButtonType> result = alert.showAndWait();
-
-                if (result.isPresent() && result.get() == ButtonType.OK)
-                    Inventory.deleteProduct(productSelected);
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("ERROR");
-                alert.setContentText("No product with any associated parts may be deleted. " +
-                        "Please delete associated parts first if product must be deleted");
-                Optional<ButtonType> result = alert.showAndWait();
-            }
-        } else {
+        if (productSelected == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");
             alert.setContentText("No product selected");
+            Optional<ButtonType> result = alert.showAndWait();
+        } else if (productSelected.getAllAssociatedParts().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Alert");
+            alert.setContentText("Do you want to delete the selected product?");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                Inventory.deleteProduct(productSelected);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setContentText("No product with any associated parts may be deleted. " +
+                    "Please delete associated parts first if product must be deleted");
             Optional<ButtonType> result = alert.showAndWait();
         }
     }

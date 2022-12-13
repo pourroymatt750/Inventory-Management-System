@@ -193,10 +193,6 @@ public class ModifyPartController implements Initializable {
                 primaryStage.setScene(new Scene(scene));
                 primaryStage.show();
             }
-
-
-
-
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");

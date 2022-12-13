@@ -115,40 +115,38 @@ public class AddPartController implements Initializable {
             int max = Integer.parseInt(partMaxField.getText());
             int min = Integer.parseInt(partMinField.getText());
 
-            if (min <= max) {
-                if (stock >= min && stock <= max) {
-                    if (inHouseRadioButton.isSelected()) {
-                        int machineId = Integer.parseInt(partIdNameField.getText());
-                        Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
-                    }
-
-                    if (outsourcedRadioButton.isSelected()) {
-                        String companyName = partIdNameField.getText();
-                        Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
-                    }
-
-                    Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
-                    Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-                    Scene scene = new Scene(root, 1000, 600);
-                    stage.setTitle("Home");
-                    stage.setScene(scene);
-                    stage.show();
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("ERROR");
-                    alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
-                    alert.showAndWait();
-                }
-            } else {
+            if (min > max) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("ERROR");
                 alert.setContentText("Minimum value must be less than maximum value");
                 alert.showAndWait();
+            } else if (stock < min || stock > max) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setContentText("Inventory level must be less than the maximum and greater than the minimum");
+                alert.showAndWait();
+            } else {
+                if (inHouseRadioButton.isSelected()) {
+                    int machineId = Integer.parseInt(partIdNameField.getText());
+                    Inventory.addPart(new InHouse(id, name, price, stock, min, max, machineId));
+                }
+
+                if (outsourcedRadioButton.isSelected()) {
+                    String companyName = partIdNameField.getText();
+                    Inventory.addPart(new Outsourced(id, name, price, stock, min, max, companyName));
+                }
+
+                Parent root = FXMLLoader.load(getClass().getResource("home-screen.fxml"));
+                Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root, 1000, 600);
+                stage.setTitle("Home");
+                stage.setScene(scene);
+                stage.show();
             }
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERROR");
-            alert.setContentText("Please enter valid values");
+            alert.setContentText("Please enter valid values in text fields");
             alert.showAndWait();
         }
     }
